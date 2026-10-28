@@ -1,0 +1,1 @@
+package br.edu.sistemasdistribuidos.exercicio02barbeirodorminhoco.atores;
