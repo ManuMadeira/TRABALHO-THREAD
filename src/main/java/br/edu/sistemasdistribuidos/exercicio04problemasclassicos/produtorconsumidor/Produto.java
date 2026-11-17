@@ -1,5 +1,6 @@
 package br.edu.sistemasdistribuidos.exercicio04problemasclassicos.produtorconsumidor;
 
+/** Eu represento tanto um item produzido quanto o sinal para encerrar um consumidor. */
 public final class Produto {
     private static final Produto ENCERRAMENTO = new Produto("fim", true);
 
@@ -19,6 +20,7 @@ public final class Produto {
     }
 
     public static Produto sinalDeEncerramento() {
+        // Eu reutilizo uma instância imutável para diferenciar o encerramento dos itens.
         return ENCERRAMENTO;
     }
 

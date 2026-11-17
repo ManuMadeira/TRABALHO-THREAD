@@ -4,6 +4,10 @@ import br.edu.sistemasdistribuidos.exercicio03jantarfilosofos.app.Main;
 
 import java.util.Scanner;
 
+/**
+ * Eu apresento as opções do trabalho e encaminho a execução para cada exercício.
+ * O menu roda na thread principal; cada exercício coordena suas próprias threads.
+ */
 public final class MenuPrincipal {
     private MenuPrincipal() {
     }
@@ -11,6 +15,7 @@ public final class MenuPrincipal {
     public static void main(String[] args) {
         try (Scanner scanner = new Scanner(System.in)) {
             boolean executando = true;
+            // Eu mantenho o menu ativo até a pessoa escolher sair ou a execução ser interrompida.
             while (executando) {
                 exibirMenu();
                 System.out.print("Escolha uma opção: ");
@@ -39,8 +44,10 @@ public final class MenuPrincipal {
                 }
 
                 try {
-                    executarExercicio(opcao);
+                    // Eu executo uma opção por vez; o menu só volta quando o exercício retorna.
+                    executarExercicio(opcao, scanner);
                 } catch (InterruptedException e) {
+                    // Eu preservo a interrupção e encerro o laço para não ignorar o pedido de parada.
                     Thread.currentThread().interrupt();
                     System.out.println("\nA execução foi interrompida. Encerrando o menu.");
                     executando = false;
@@ -73,30 +80,32 @@ public final class MenuPrincipal {
         System.out.println("==============================================");
     }
 
-    private static void executarExercicio(int opcao) throws InterruptedException {
+    private static void executarExercicio(int opcao, Scanner scanner) throws InterruptedException {
+        // Eu encaminho a opção selecionada; os exercícios implementados iniciam e aguardam
+        // suas próprias threads antes de retornar para este menu.
         switch (opcao) {
             case 1:
-                informarImplementacaoPendente("Atendimento no Bar");
+                System.out.println("\nIniciando o Atendimento no Bar...\n");
+                br.edu.sistemasdistribuidos.exercicio01atendimentobar.app.Main
+                        .main(new String[0]);
                 break;
             case 2:
-                informarImplementacaoPendente("Barbeiro Dorminhoco");
+                System.out.println("\nIniciando o Barbeiro Dorminhoco...\n");
+                br.edu.sistemasdistribuidos.exercicio02barbeirodorminhoco.app.Main
+                        .main(new String[0]);
                 break;
             case 3:
                 System.out.println("\nIniciando o Jantar dos Filósofos...\n");
                 Main.main(new String[0]);
                 break;
             case 4:
-                System.out.println("\nIniciando os Problemas Clássicos...\n");
+                System.out.println("\nAbrindo o menu de Problemas Clássicos...\n");
                 br.edu.sistemasdistribuidos.exercicio04problemasclassicos.app.Main
-                        .main(new String[0]);
+                        .executarMenu(scanner);
                 break;
             default:
                 throw new IllegalArgumentException("Opção de exercício inválida: " + opcao);
         }
     }
 
-    private static void informarImplementacaoPendente(String exercicio) {
-        System.out.printf("%n%s ainda não possui uma implementação executável neste projeto.%n",
-                exercicio);
-    }
 }

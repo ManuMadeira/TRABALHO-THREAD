@@ -6,6 +6,11 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 
+/**
+ * Eu centralizo os estados dos filósofos e a disponibilidade dos palitos.
+ * O monitor garante que a verificação e a reserva dos dois palitos sejam atômicas.
+ * Eu uso uma fila FIFO para evitar ultrapassagens, embora a JVM não garanta o escalonamento.
+ */
 public class Mesa {
     public static final int QUANTIDADE_FILOSOFOS = 5;
 
@@ -30,10 +35,13 @@ public class Mesa {
         registrar("Filósofo " + id + " está com fome; aguardando os dois palitos.");
 
         try {
+            // Eu atendo a fila por ordem e só avanço quando ambos os palitos estão livres.
+            // Uso wait para liberar o monitor enquanto aguardo a devolução dos palitos.
             while (filaDeFome.peekFirst() != id || !doisPalitosDisponiveis(id)) {
                 wait();
             }
 
+            // Eu retiro e marco os dois palitos juntos, sem deixar outra thread pegá-los.
             filaDeFome.removeFirst();
             int palitoEsquerdo = palitoEsquerdo(id);
             int palitoDireito = palitoDireito(id);
@@ -43,6 +51,7 @@ public class Mesa {
             registrar("Filósofo " + id + " pegou os palitos "
                     + palitoEsquerdo + " e " + palitoDireito + " e está COMENDO.");
         } catch (InterruptedException e) {
+            // Eu retiro da fila quem desistiu de esperar e acordo os demais para reavaliar.
             filaDeFome.remove(id);
             estados[id] = EstadoFilosofo.PENSANDO;
             notifyAll();
@@ -57,6 +66,7 @@ public class Mesa {
                     "O filósofo " + id + " não está comendo e não pode devolver palitos.");
         }
 
+        // Eu libero os dois recursos de uma vez e aviso aos que estão esperando.
         palitosDisponiveis[palitoEsquerdo(id)] = true;
         palitosDisponiveis[palitoDireito(id)] = true;
         estados[id] = EstadoFilosofo.PENSANDO;
@@ -65,6 +75,8 @@ public class Mesa {
     }
 
     private boolean doisPalitosDisponiveis(int id) {
+        // Eu exijo os dois palitos simultaneamente, evitando que cada filósofo segure um
+        // enquanto espera pelo outro, situação que poderia causar deadlock.
         return palitosDisponiveis[palitoEsquerdo(id)]
                 && palitosDisponiveis[palitoDireito(id)];
     }

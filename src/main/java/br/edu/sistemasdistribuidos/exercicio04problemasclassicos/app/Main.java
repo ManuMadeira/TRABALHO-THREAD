@@ -12,8 +12,10 @@ import br.edu.sistemasdistribuidos.exercicio04problemasclassicos.roletas.Roletas
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
+/** Eu executo demonstrações de sincronização para os problemas clássicos do exercício. */
 public final class Main {
     private static final int CAPACIDADE_BUFFER = 3;
     private static final int QUANTIDADE_PRODUTORES = 2;
@@ -23,23 +25,75 @@ public final class Main {
     private Main() {
     }
 
+    /** Eu apresento o submenu e executo apenas a demonstração escolhida. */
     public static void main(String[] args) throws InterruptedException {
         int quantidadeRoletas = args.length > 0 ? Integer.parseInt(args[0]) : 3;
         int quantidadePessoas = args.length > 1 ? Integer.parseInt(args[1]) : 10;
 
-        System.out.println("========== 4.a - ROLETAS ==========");
-        executarRoletas(quantidadeRoletas, quantidadePessoas);
+        try (Scanner scanner = new Scanner(System.in)) {
+            executarMenu(scanner, quantidadeRoletas, quantidadePessoas);
+        }
+    }
 
-        System.out.println("\n========== 4.b - CONTAS BANCÁRIAS ==========");
-        executarContasBancarias();
+    /**
+     * Eu uso o mesmo Scanner do menu principal para evitar que dois leitores
+     * concorram pela entrada do teclado.
+     */
+    public static void executarMenu(Scanner scanner) throws InterruptedException {
+        executarMenu(scanner, 3, 10);
+    }
 
-        System.out.println("\n========== 4.c - PRODUTOR/CONSUMIDOR COM SEMÁFOROS ==========");
-        executarProdutorConsumidor(new BufferSemaforos(CAPACIDADE_BUFFER), "Semaforos");
+    private static void executarMenu(Scanner scanner, int quantidadeRoletas,
+                                     int quantidadePessoas) throws InterruptedException {
+        boolean executando = true;
+        while (executando) {
+            System.out.println("========== EXERCÍCIO 4 - PROBLEMAS CLÁSSICOS ==========");
+            System.out.println("[1] Roletas");
+            System.out.println("[2] Contas bancárias");
+            System.out.println("[3] Produtor/consumidor com semáforos");
+            System.out.println("[4] Produtor/consumidor com monitor");
+            System.out.println("[0] Voltar ao menu principal");
+            System.out.print("Escolha uma opção: ");
 
-        System.out.println("\n========== 4.c - PRODUTOR/CONSUMIDOR COM MONITOR ==========");
-        executarProdutorConsumidor(new BufferMonitor(CAPACIDADE_BUFFER), "Monitor");
+            if (!scanner.hasNextLine()) {
+                return;
+            }
 
-        System.out.println("\nDemonstração do Exercício 4 concluída.");
+            final int opcao;
+            try {
+                opcao = Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println("Entrada inválida. Digite um número de 0 a 4.\n");
+                continue;
+            }
+
+            switch (opcao) {
+                case 0:
+                    executando = false;
+                    break;
+                case 1:
+                    System.out.println("\n========== 4.a - ROLETAS ==========");
+                    executarRoletas(quantidadeRoletas, quantidadePessoas);
+                    break;
+                case 2:
+                    System.out.println("\n========== 4.b - CONTAS BANCÁRIAS ==========");
+                    executarContasBancarias();
+                    break;
+                case 3:
+                    System.out.println("\n========== 4.c - PRODUTOR/CONSUMIDOR COM SEMÁFOROS ==========");
+                    executarProdutorConsumidor(
+                            new BufferSemaforos(CAPACIDADE_BUFFER), "Semaforos");
+                    break;
+                case 4:
+                    System.out.println("\n========== 4.c - PRODUTOR/CONSUMIDOR COM MONITOR ==========");
+                    executarProdutorConsumidor(
+                            new BufferMonitor(CAPACIDADE_BUFFER), "Monitor");
+                    break;
+                default:
+                    System.out.println("Opção fora do intervalo. Escolha um número de 0 a 4.\n");
+            }
+        }
+        System.out.println("Retornando ao menu principal.");
     }
 
     private static void executarRoletas(int quantidadeRoletas, int quantidadePessoas)
@@ -50,6 +104,7 @@ public final class Main {
 
         Roletas roletas = new Roletas(quantidadeRoletas);
         List<Thread> pessoas = new ArrayList<>();
+        // Eu crio uma thread por pessoa; cada uma ocupa e libera uma roleta de forma segura.
         for (int id = 1; id <= quantidadePessoas; id++) {
             final int pessoaId = id;
             pessoas.add(new Thread(() -> {
@@ -63,6 +118,7 @@ public final class Main {
                     Thread.currentThread().interrupt();
                 } finally {
                     if (roleta >= 0) {
+                        // Eu libero a roleta até mesmo quando a pessoa é interrompida.
                         roletas.sair(roleta);
                     }
                 }
@@ -71,11 +127,13 @@ public final class Main {
         iniciarEAguardar(pessoas);
     }
 
+    /** Eu comparo operações simultâneas em duas contas e consulto os saldos ao final. */
     private static void executarContasBancarias() throws InterruptedException {
         ContaBancaria contaA = new ContaBancaria("A", new BigDecimal("1000.00"));
         ContaBancaria contaB = new ContaBancaria("B", new BigDecimal("500.00"));
         List<Thread> operacoes = new ArrayList<>();
 
+        // Eu inicio operações concorrentes para exercitar a sincronização dos saldos.
         operacoes.add(new Thread(() ->
                 contaA.depositar(new BigDecimal("200.00")), "Deposito-A"));
         operacoes.add(new Thread(() ->
@@ -100,6 +158,7 @@ public final class Main {
     private static void executarProdutorConsumidor(Buffer buffer, String variante)
             throws InterruptedException {
         List<Thread> consumidores = new ArrayList<>();
+        // Eu inicio os consumidores primeiro para que possam aguardar os produtos no buffer.
         for (int id = 1; id <= QUANTIDADE_CONSUMIDORES; id++) {
             consumidores.add(new Thread(new Consumidor(buffer, variante + "-C" + id),
                     variante + "-Consumidor-" + id));
@@ -115,8 +174,10 @@ public final class Main {
         try {
             iniciarThreads(consumidores);
             iniciarThreads(produtores);
+            // Eu espero todos os produtores terminarem antes de enviar os sinais de parada.
             aguardarThreads(produtores);
 
+            // Eu envio um sinal por consumidor para encerrar todas as threads consumidoras.
             for (int i = 0; i < QUANTIDADE_CONSUMIDORES; i++) {
                 buffer.inserir(Produto.sinalDeEncerramento());
             }
@@ -130,6 +191,7 @@ public final class Main {
     private static void iniciarEAguardar(List<Thread> threads) throws InterruptedException {
         try {
             iniciarThreads(threads);
+            // Eu só continuo depois que todas as threads desta demonstração terminarem.
             aguardarThreads(threads);
         } finally {
             interromperThreads(threads);
@@ -137,18 +199,21 @@ public final class Main {
     }
 
     private static void iniciarThreads(List<Thread> threads) {
+        // Eu inicio cada thread da lista.
         for (Thread thread : threads) {
             thread.start();
         }
     }
 
     private static void aguardarThreads(List<Thread> threads) throws InterruptedException {
+        // Eu uso join para coordenar o término antes de consultar os resultados.
         for (Thread thread : threads) {
             thread.join();
         }
     }
 
     private static void interromperThreads(List<Thread> threads) {
+        // Eu peço a parada das threads que ainda estejam ativas ao sair da demonstração.
         for (Thread thread : threads) {
             if (thread.isAlive()) {
                 thread.interrupt();
