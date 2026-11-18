@@ -1,6 +1,6 @@
 package br.edu.sistemasdistribuidos.exercicio04problemasclassicos.produtorconsumidor;
 
-/** Eu modelo uma thread que retira produtos do buffer e os consome. */
+/** Esta classe modela uma thread que retira produtos do buffer e os consome. */
 public class Consumidor implements Runnable {
     private final Buffer buffer;
     private final String identificador;
@@ -16,7 +16,7 @@ public class Consumidor implements Runnable {
     @Override
     public void run() {
         try {
-            // Eu continuo consumindo até receber o produto especial de encerramento.
+            // O consumo continua consumindo até receber o produto especial de encerramento.
             while (true) {
                 Produto produto = buffer.remover();
                 if (produto.isEncerramento()) {
@@ -28,7 +28,7 @@ public class Consumidor implements Runnable {
                         Thread.currentThread().getName(), identificador, produto.getValor());
             }
         } catch (InterruptedException e) {
-            // Eu preservo o sinal para que quem coordena as threads saiba da interrupção.
+            // O código preserva o sinal para que quem coordena as threads saiba da interrupção.
             Thread.currentThread().interrupt();
         }
     }

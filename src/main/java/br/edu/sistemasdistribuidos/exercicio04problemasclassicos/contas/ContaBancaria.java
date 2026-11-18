@@ -5,7 +5,7 @@ import java.math.RoundingMode;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Eu represento uma conta compartilhada entre threads e sincronizo as operações
+ * Esta classe representa uma conta compartilhada entre threads e sincroniza as operações
  * que leem ou alteram o saldo para evitar condições de corrida.
  */
 public class ContaBancaria {
@@ -25,14 +25,14 @@ public class ContaBancaria {
     }
 
     public synchronized void depositar(BigDecimal valor) {
-        // Eu mantenho a validação e a atualização do saldo dentro do mesmo bloqueio.
+        // Neste trecho, a validação e a atualização do saldo ficam dentro do mesmo bloqueio.
         validarValorPositivo(valor, "Depósito");
         saldo = saldo.add(dinheiro(valor));
         registrar("depositou R$ " + dinheiro(valor).toPlainString());
     }
 
     public synchronized boolean sacar(BigDecimal valor) {
-        // Eu verifico e desconto atomicamente para não permitir saques concorrentes indevidos.
+        // O código verifica e desconta o valor atomicamente para não permitir saques concorrentes indevidos.
         validarValorPositivo(valor, "Saque");
         BigDecimal valorFormatado = dinheiro(valor);
         if (saldo.compareTo(valorFormatado) < 0) {
@@ -46,7 +46,7 @@ public class ContaBancaria {
     }
 
     public synchronized void creditarJuros(BigDecimal taxa) {
-        // Eu calculo e aplico os juros sem outra operação alterar o saldo no meio do processo.
+        // Os juros são calculados e aplicados sem outra operação alterar o saldo no meio do processo.
         validarValorNaoNegativo(taxa, "Taxa de juros");
         BigDecimal juros = saldo.multiply(taxa).setScale(2, RoundingMode.HALF_UP);
         saldo = saldo.add(juros);
@@ -63,8 +63,8 @@ public class ContaBancaria {
             throw new IllegalArgumentException("A origem e o destino devem ser contas distintas.");
         }
 
-        // Eu sempre bloqueio as contas pela mesma ordem de ID; isso evita deadlock
-        // quando duas threads tentam transferir em sentidos opostos ao mesmo tempo.
+        // Observe que as contas são bloqueadas sempre pela mesma ordem de ID.
+        // Dessa forma, evitamos deadlock quando duas threads fazem transferências opostas ao mesmo tempo.
         ContaBancaria primeira = origem.id < destino.id ? origem : destino;
         ContaBancaria segunda = origem.id < destino.id ? destino : origem;
         synchronized (primeira) {
@@ -87,7 +87,7 @@ public class ContaBancaria {
     }
 
     public synchronized BigDecimal getSaldo() {
-        // Eu sincronizo a leitura para observar um saldo consistente com as atualizações.
+        // A leitura é sincronizada para que o saldo reflita as atualizações já concluídas.
         return saldo;
     }
 

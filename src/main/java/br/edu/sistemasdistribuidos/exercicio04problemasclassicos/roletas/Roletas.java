@@ -3,7 +3,7 @@ package br.edu.sistemasdistribuidos.exercicio04problemasclassicos.roletas;
 import java.util.concurrent.Semaphore;
 
 /**
- * Eu controlo o acesso a um conjunto limitado de roletas: o semáforo limita
+ * A classe controla o acesso a um conjunto limitado de roletas: o semáforo limita
  * quantas pessoas entram, e o monitor protege a identificação de cada ocupante.
  */
 public class Roletas {
@@ -19,10 +19,10 @@ public class Roletas {
     }
 
     public int entrar() throws InterruptedException {
-        // Eu aguardo uma vaga; a fila justa do semáforo organiza a ordem de aquisição.
+        // O método aguarda uma vaga; a fila justa do semáforo organiza a ordem de aquisição.
         vagas.acquire();
         synchronized (proprietarios) {
-            // Eu localizo e registro uma roleta livre dentro da região protegida.
+            // A classe localizo e registro uma roleta livre dentro da região protegida.
             for (int i = 0; i < proprietarios.length; i++) {
                 if (proprietarios[i] == null) {
                     proprietarios[i] = Thread.currentThread();
@@ -31,7 +31,7 @@ public class Roletas {
             }
         }
 
-        // Eu devolvo a permissão se o estado não corresponder à vaga adquirida.
+        // O código devolve a permissão se o estado não corresponder à vaga adquirida.
         vagas.release();
         throw new IllegalStateException("Permissão adquirida, mas nenhuma roleta estava livre.");
     }
@@ -43,14 +43,14 @@ public class Roletas {
 
         synchronized (proprietarios) {
             int indice = identificador - 1;
-            // Eu só permito que a própria thread que entrou libere a roleta.
+            // A thread só pode liberar que a própria thread que entrou libere a roleta.
             if (proprietarios[indice] != Thread.currentThread()) {
                 throw new IllegalStateException("A roleta " + identificador
                         + " não está ocupada por esta thread.");
             }
             proprietarios[indice] = null;
         }
-        // Eu anuncio a vaga somente depois de atualizar o estado protegido.
+        // O código anuncia a vaga somente depois de atualizar o estado protegido.
         vagas.release();
     }
 }

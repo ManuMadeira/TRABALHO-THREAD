@@ -2,7 +2,7 @@ package br.edu.sistemasdistribuidos.exercicio01atendimentobar.controle;
 
 import java.util.concurrent.CountDownLatch;
 
-/** Eu guardo os dados de um pedido e sincronizo a espera pelo seu atendimento. */
+/** Esta classe guarda os dados de um pedido e sincroniza a espera pelo seu atendimento. */
 public final class Pedido {
     private final String cliente;
     private final int rodada;
@@ -22,12 +22,12 @@ public final class Pedido {
     }
 
     public void concluirAtendimento() {
-        // Eu libero o cliente que está aguardando este pedido específico.
+        // O código libera o cliente que está aguardando este pedido específico.
         atendido.countDown();
     }
 
     public void aguardarAtendimento() throws InterruptedException {
-        // Eu bloqueio o cliente sem espera ativa até o bartender concluir o pedido.
+        // O código bloqueia o cliente sem espera ativa até o bartender concluir o pedido.
         atendido.await();
     }
 }

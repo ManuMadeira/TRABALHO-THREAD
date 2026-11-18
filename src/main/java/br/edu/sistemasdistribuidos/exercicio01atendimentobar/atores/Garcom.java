@@ -12,7 +12,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Eu represento uma thread que recebe as escolhas de seus clientes, agrupa pedidos
+ * Esta classe representa uma thread que recebe as escolhas de seus clientes, agrupa pedidos
  * em lotes e os encaminha ao bartender.
  */
 public final class Garcom extends Thread {
@@ -34,10 +34,10 @@ public final class Garcom extends Thread {
 
     public void registrarEscolha(Pedido pedido, boolean desejaPedido)
             throws InterruptedException {
-        // Eu publico a escolha na fila thread-safe; o garçom a retira sem disputa pela fila.
+        // O código publica a escolha na fila thread-safe; o garçom a retira sem disputa pela fila.
         escolhas.put(new Escolha(pedido, desejaPedido));
         if (desejaPedido) {
-            // Eu só confirmo a entrega ao cliente depois que o bartender sinalizar o atendimento.
+            // A entrega é confirmada ao cliente depois que o bartender sinalizar o atendimento.
             pedido.aguardarAtendimento();
             System.out.printf("%s entregou o pedido para %s.%n",
                     getName(), pedido.getCliente());
@@ -47,7 +47,7 @@ public final class Garcom extends Thread {
     @Override
     public void run() {
         try {
-            // Eu processo as rodadas em ordem até atender todos os clientes atribuídos.
+            // O método processa as rodadas em ordem até atender todos os clientes atribuídos.
             for (int rodada = 1; rodada <= rodadas; rodada++) {
                 processarRodada(rodada);
             }
@@ -60,8 +60,8 @@ public final class Garcom extends Thread {
         int escolhasRecebidas = 0;
         List<Pedido> lote = new ArrayList<>(capacidade);
 
-        // Eu recebo uma escolha de cada cliente e envio os pedidos em lotes limitados
-        // pela capacidade; no fim também encaminho um lote incompleto, se sobrar.
+        // O método recebe uma escolha de cada cliente e os pedidos são enviados em lotes limitados
+        // pela capacidade; no fim também um lote incompleto é encaminhado ao final, se houver.
         while (escolhasRecebidas < clientesAtendidos) {
             Escolha escolha = proximaEscolha(rodada);
             escolhasRecebidas++;
@@ -86,14 +86,14 @@ public final class Garcom extends Thread {
     }
 
     private Escolha proximaEscolha(int rodada) throws InterruptedException {
-        // Eu reutilizo primeiro escolhas futuras que já chegaram fora da ordem das rodadas.
+        // O código reutiliza primeiro escolhas futuras que já chegaram fora da ordem das rodadas.
         ArrayDeque<Escolha> futuras = escolhasFuturas.get(rodada);
         if (futuras != null && !futuras.isEmpty()) {
             return futuras.removeFirst();
         }
 
         while (true) {
-            // Eu bloqueio sem ocupar CPU até chegar uma escolha na fila thread-safe.
+            // O código bloqueia sem ocupar CPU até chegar uma escolha na fila thread-safe.
             Escolha escolha = escolhas.take();
             if (escolha.pedido.getRodada() == rodada) {
                 return escolha;
@@ -106,12 +106,12 @@ public final class Garcom extends Thread {
     private void enviarLote(int rodada, List<Pedido> lote) throws InterruptedException {
         System.out.printf("%s está indo à copa com %d pedido(s) da rodada %d.%n",
                 getName(), lote.size(), rodada);
-        // Eu aguardo o bartender concluir o lote antes de continuar o atendimento.
+        // O método aguarda o bartender concluir o lote antes de continuar o atendimento.
         bartender.atender(lote);
         System.out.printf("%s voltou da copa para atender os clientes.%n", getName());
     }
 
-    /** Eu agrupo a escolha do cliente e seu pedido para a fila do garçom. */
+    /** Esta classe agrupa a escolha do cliente e seu pedido para a fila do garçom. */
     private static final class Escolha {
         private final Pedido pedido;
         private final boolean desejaPedido;

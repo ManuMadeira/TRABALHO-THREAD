@@ -7,7 +7,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 /**
- * Eu implemento o buffer limitado com monitor: uso synchronized para proteger a fila
+ * A classe o buffer limitado com monitor: uso synchronized para proteger a fila
  * e wait/notifyAll para coordenar quem espera por espaço ou por itens. Assim evito
  * condições de corrida, mas o monitor não garante por si só que ninguém sofra starvation.
  */
@@ -27,24 +27,24 @@ public class BufferMonitor implements Buffer {
         if (produto == null) {
             throw new IllegalArgumentException("Não é possível inserir um produto nulo.");
         }
-        // Eu verifico em while porque posso acordar sem a condição ter mudado.
-        // Uso wait para liberar o monitor enquanto aguardo, permitindo retirar itens.
+        // O método verifica em while porque posso acordar sem a condição ter mudado.
+        // A instrução wait libera o monitor enquanto aguarda enquanto permite retirar itens.
         while (fila.size() == capacidade) {
             wait();
         }
         fila.add(produto);
-        // Eu acordo todos para que produtores e consumidores reavaliem suas condições.
+        // O código acorda todos para que produtores e consumidores reavaliem suas condições.
         notifyAll();
     }
 
     @Override
     public synchronized Produto remover() throws InterruptedException {
-        // Eu aguardo enquanto não há itens; com wait, libero o monitor para os produtores.
+        // O método aguarda enquanto não há itens; com wait, libera o monitor para os produtores.
         while (fila.isEmpty()) {
             wait();
         }
         Produto produto = fila.remove();
-        // Eu aviso que surgiu espaço e também permito que todos verifiquem se podem agir.
+        // O código avisa que surgiu espaço e também permite que todos verifiquem se podem agir.
         notifyAll();
         return produto;
     }

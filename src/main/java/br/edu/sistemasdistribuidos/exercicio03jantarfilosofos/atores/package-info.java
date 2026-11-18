@@ -1,2 +1,2 @@
-/** Eu reúno neste pacote as threads que representam os filósofos da simulação. */
+/** Este pacote reúne neste pacote as threads que representam os filósofos da simulação. */
 package br.edu.sistemasdistribuidos.exercicio03jantarfilosofos.atores;

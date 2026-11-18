@@ -4,7 +4,7 @@ import br.edu.sistemasdistribuidos.exercicio01atendimentobar.controle.Pedido;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Eu represento um cliente concorrente que pode fazer pedidos em várias rodadas. */
+/** Esta classe representa um cliente concorrente que pode fazer pedidos em várias rodadas. */
 public final class Cliente extends Thread {
     private final Garcom garcom;
     private final int rodadas;
@@ -18,7 +18,7 @@ public final class Cliente extends Thread {
     @Override
     public void run() {
         try {
-            // Eu repito as rodadas, informo minha escolha ao garçom e aguardo o pedido se houver.
+            // O ciclo repete as rodadas, a escolha é registrada no garçom e o pedido é aguardado quando solicitado.
             for (int rodada = 1; rodada <= rodadas; rodada++) {
                 boolean desejaPedido = ThreadLocalRandom.current().nextInt(100) < 70;
                 if (!desejaPedido) {
@@ -32,13 +32,13 @@ public final class Cliente extends Thread {
                 }
             }
         } catch (InterruptedException e) {
-            // Eu preservo a interrupção para que a thread possa ser encerrada corretamente.
+            // O código preserva a interrupção para que a thread possa ser encerrada corretamente.
             interrupt();
         }
     }
 
     private void consumirPedido() throws InterruptedException {
-        // Eu simulo o tempo de consumo; durante essa espera os outros clientes seguem em paralelo.
+        // O código simula o tempo de consumo; durante essa espera os outros clientes seguem em paralelo.
         long tempoConsumo = ThreadLocalRandom.current().nextLong(300, 1001);
         System.out.printf("%s está consumindo por %d ms.%n", getName(), tempoConsumo);
         Thread.sleep(tempoConsumo);

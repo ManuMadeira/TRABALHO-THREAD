@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Eu executo demonstrações de sincronização para os problemas clássicos do exercício. */
+/** Esta classe executa demonstrações de sincronização para os problemas clássicos do exercício. */
 public final class Main {
     private static final int CAPACIDADE_BUFFER = 3;
     private static final int QUANTIDADE_PRODUTORES = 2;
@@ -25,7 +25,7 @@ public final class Main {
     private Main() {
     }
 
-    /** Eu apresento o submenu e executo apenas a demonstração escolhida. */
+    /** O método apresenta o submenu e executo apenas a demonstração escolhida. */
     public static void main(String[] args) throws InterruptedException {
         int quantidadeRoletas = args.length > 0 ? Integer.parseInt(args[0]) : 3;
         int quantidadePessoas = args.length > 1 ? Integer.parseInt(args[1]) : 10;
@@ -36,7 +36,7 @@ public final class Main {
     }
 
     /**
-     * Eu uso o mesmo Scanner do menu principal para evitar que dois leitores
+     * O código usa o mesmo Scanner do menu principal para evitar que dois leitores
      * concorram pela entrada do teclado.
      */
     public static void executarMenu(Scanner scanner) throws InterruptedException {
@@ -104,7 +104,7 @@ public final class Main {
 
         Roletas roletas = new Roletas(quantidadeRoletas);
         List<Thread> pessoas = new ArrayList<>();
-        // Eu crio uma thread por pessoa; cada uma ocupa e libera uma roleta de forma segura.
+        // O código cria uma thread por pessoa; cada uma ocupa e libera uma roleta de forma segura.
         for (int id = 1; id <= quantidadePessoas; id++) {
             final int pessoaId = id;
             pessoas.add(new Thread(() -> {
@@ -118,7 +118,7 @@ public final class Main {
                     Thread.currentThread().interrupt();
                 } finally {
                     if (roleta >= 0) {
-                        // Eu libero a roleta até mesmo quando a pessoa é interrompida.
+                        // O código libera a roleta até mesmo quando a pessoa é interrompida.
                         roletas.sair(roleta);
                     }
                 }
@@ -127,13 +127,13 @@ public final class Main {
         iniciarEAguardar(pessoas);
     }
 
-    /** Eu comparo operações simultâneas em duas contas e consulto os saldos ao final. */
+    /** O método compara operações simultâneas em duas contas e consulto os saldos ao final. */
     private static void executarContasBancarias() throws InterruptedException {
         ContaBancaria contaA = new ContaBancaria("A", new BigDecimal("1000.00"));
         ContaBancaria contaB = new ContaBancaria("B", new BigDecimal("500.00"));
         List<Thread> operacoes = new ArrayList<>();
 
-        // Eu inicio operações concorrentes para exercitar a sincronização dos saldos.
+        // O método inicia operações concorrentes para exercitar a sincronização dos saldos.
         operacoes.add(new Thread(() ->
                 contaA.depositar(new BigDecimal("200.00")), "Deposito-A"));
         operacoes.add(new Thread(() ->
@@ -158,7 +158,7 @@ public final class Main {
     private static void executarProdutorConsumidor(Buffer buffer, String variante)
             throws InterruptedException {
         List<Thread> consumidores = new ArrayList<>();
-        // Eu inicio os consumidores primeiro para que possam aguardar os produtos no buffer.
+        // O método inicia os consumidores primeiro para que possam aguardar os produtos no buffer.
         for (int id = 1; id <= QUANTIDADE_CONSUMIDORES; id++) {
             consumidores.add(new Thread(new Consumidor(buffer, variante + "-C" + id),
                     variante + "-Consumidor-" + id));
@@ -174,10 +174,10 @@ public final class Main {
         try {
             iniciarThreads(consumidores);
             iniciarThreads(produtores);
-            // Eu espero todos os produtores terminarem antes de enviar os sinais de parada.
+            // O código espera todos os produtores terminarem antes de enviar os sinais de parada.
             aguardarThreads(produtores);
 
-            // Eu envio um sinal por consumidor para encerrar todas as threads consumidoras.
+            // O código envia um sinal por consumidor para encerrar todas as threads consumidoras.
             for (int i = 0; i < QUANTIDADE_CONSUMIDORES; i++) {
                 buffer.inserir(Produto.sinalDeEncerramento());
             }
@@ -191,7 +191,7 @@ public final class Main {
     private static void iniciarEAguardar(List<Thread> threads) throws InterruptedException {
         try {
             iniciarThreads(threads);
-            // Eu só continuo depois que todas as threads desta demonstração terminarem.
+            // A classe só continuo depois que todas as threads desta demonstração terminarem.
             aguardarThreads(threads);
         } finally {
             interromperThreads(threads);
@@ -199,21 +199,21 @@ public final class Main {
     }
 
     private static void iniciarThreads(List<Thread> threads) {
-        // Eu inicio cada thread da lista.
+        // O método inicia cada thread da lista.
         for (Thread thread : threads) {
             thread.start();
         }
     }
 
     private static void aguardarThreads(List<Thread> threads) throws InterruptedException {
-        // Eu uso join para coordenar o término antes de consultar os resultados.
+        // O código usa join para coordenar o término antes de consultar os resultados.
         for (Thread thread : threads) {
             thread.join();
         }
     }
 
     private static void interromperThreads(List<Thread> threads) {
-        // Eu peço a parada das threads que ainda estejam ativas ao sair da demonstração.
+        // A classe peço a parada das threads que ainda estejam ativas ao sair da demonstração.
         for (Thread thread : threads) {
             if (thread.isAlive()) {
                 thread.interrupt();
