@@ -35,7 +35,7 @@ public final class MenuPrincipal {
                 }
 
                 if (opcao == 0) {
-                    System.out.println("Obrigado por utilizar o programa. Até a próxima!");
+                    System.out.println("Obrigado por utilizar o programa.");
                     break;
                 }
                 if (opcao < 1 || opcao > 4) {
@@ -59,7 +59,7 @@ public final class MenuPrincipal {
                         scanner.nextLine();
                         System.out.println();
                     } else {
-                        System.out.println("\nEntrada encerrada. Até a próxima!");
+                        System.out.println("\nEntrada encerrada.");
                         executando = false;
                     }
                 }

@@ -8,11 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Esta classe coordena a criação e o encerramento das threads do atendimento no bar. */
-public final class Main {
+public final class Main {// aqui muda a quantidade de cliente, garçon, capacidade e de rodadas/
     private static final int CLIENTES_PADRAO = 12;
     private static final int GARCONS_PADRAO = 3;
     private static final int CAPACIDADE_PADRAO = 4;
     private static final int RODADAS_PADRAO = 5;
+    
 
     private Main() {
     }
