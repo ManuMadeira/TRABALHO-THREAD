@@ -7,18 +7,23 @@ import br.edu.sistemasdistribuidos.exercicio01atendimentobar.controle.Bartender;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Esta classe coordena a criação e o encerramento das threads do atendimento no bar. */
+/**
+ * Esta classe coordena a criação e o encerramento das threads do atendimento no
+ * bar.
+ */
 public final class Main {// aqui muda a quantidade de cliente, garçon, capacidade e de rodadas/
-    private static final int CLIENTES_PADRAO = 12;
-    private static final int GARCONS_PADRAO = 3;
-    private static final int CAPACIDADE_PADRAO = 4;
-    private static final int RODADAS_PADRAO = 5;
-    
+    private static final int CLIENTES_PADRAO = 5;
+    private static final int GARCONS_PADRAO = 2;
+    private static final int CAPACIDADE_PADRAO = 2;
+    private static final int RODADAS_PADRAO = 1;
 
     private Main() {
     }
 
-    /** O método inicia o bartender, os garçons e os clientes e aguarda o fim do atendimento. */
+    /**
+     * O método inicia o bartender, os garçons e os clientes e aguarda o fim do
+     * atendimento.
+     */
     public static void main(String[] args) throws InterruptedException {
         if (args.length > 4) {
             throw new IllegalArgumentException(
@@ -34,23 +39,27 @@ public final class Main {// aqui muda a quantidade de cliente, garçon, capacida
                 quantidadeClientes, quantidadeGarcons, capacidade, rodadas);
 
         Bartender bartender = new Bartender();
-        // O método inicia o bartender antes dos garçons para que ele possa receber os lotes.
+        // O método inicia o bartender antes dos garçons para que ele possa receber os
+        // lotes.
         bartender.start();
 
         Garcom[] garcons = new Garcom[quantidadeGarcons];
         int[] clientesPorGarcom = new int[quantidadeGarcons];
-        // Os clientes são distribuídos os clientes entre os garçons para cada um saber quantas escolhas esperar.
+        // Os clientes são distribuídos os clientes entre os garçons para cada um saber
+        // quantas escolhas esperar.
         for (int cliente = 0; cliente < quantidadeClientes; cliente++) {
             clientesPorGarcom[cliente % quantidadeGarcons]++;
         }
-        // O código cria e inicia um trabalhador por garçom; cada um processa seus clientes em paralelo.
+        // O código cria e inicia um trabalhador por garçom; cada um processa seus
+        // clientes em paralelo.
         for (int i = 0; i < garcons.length; i++) {
             garcons[i] = new Garcom(i + 1, clientesPorGarcom[i], capacidade, rodadas, bartender);
             garcons[i].start();
         }
 
         List<Cliente> clientes = new ArrayList<>();
-        // O método inicia os clientes como threads independentes, associados a seus garçons.
+        // O método inicia os clientes como threads independentes, associados a seus
+        // garçons.
         for (int i = 0; i < quantidadeClientes; i++) {
             Cliente cliente = new Cliente(i + 1, garcons[i % quantidadeGarcons], rodadas);
             clientes.add(cliente);
@@ -58,7 +67,8 @@ public final class Main {// aqui muda a quantidade de cliente, garçon, capacida
         }
 
         try {
-            // O método aguarda primeiro os clientes e depois os garçons terminarem suas rodadas.
+            // O método aguarda primeiro os clientes e depois os garçons terminarem suas
+            // rodadas.
             for (Cliente cliente : clientes) {
                 cliente.join();
             }
